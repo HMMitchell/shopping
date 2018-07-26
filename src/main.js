@@ -10,10 +10,16 @@ Vue.use(VueRouter);
 
 // 注册路由规则
 const router = new VueRouter({
-  routes: [{
-    path: '/index',
-    component: index,
-  }]
+  routes: [
+    {
+      path: '/',
+      component: index,
+    },
+    {
+      path: '/index',
+      component: index,
+    }
+  ]
 })
 
 // 引入公共样式

@@ -38,9 +38,10 @@
                 <div id="menu2" class="nav-box menuhd">
                     <ul>
                         <li class="index">
-                            <a href="#" class="">
+                            <router-link to="/index" class="router-link-exact-active ">
                                 <span class="out" style="top: 0px;">首页</span>
-                            </a>
+                            </router-link>
+                            
                         </li>
                         <li class="news">
                             <a href="#" class="">
@@ -63,7 +64,7 @@
                             </a>
                         </li>
                         <li class="goods">
-                            <a href="" class="router-link-exact-active ">
+                            <a href="">
                                 <span class="out" style="top: 0px;">购物商城</span>
                             </a>
                         </li>
@@ -118,11 +119,38 @@
 </template>
 
 <script>
+import $ from "jquery"
 export default {
-  
+  name: "app",
+  mounted() {
+    $("#menu2 li a").wrapInner('<span class="out"></span>');
+    $("#menu2 li a").each(function() {
+      $('<span class="over">' + $(this).text() + "</span>").appendTo(this);
+    });
+
+    $("#menu2 li a").hover(
+      function() {
+        $(".out", this)
+          .stop()
+          .animate({ top: "48px" }, 300); // move down - hide
+        $(".over", this)
+          .stop()
+          .animate({ top: "0px" }, 300); // move down - show
+      },
+      function() {
+        $(".out", this)
+          .stop()
+          .animate({ top: "0px" }, 300); // move up - show
+        $(".over", this)
+          .stop()
+          .animate({ top: "-48px" }, 300); // move up - hide
+      }
+    );
+  }
 };
 </script>
 
-<style>
-    
+<style scoped>
+@import "./assets/lib/hoverNav/css/style.css"
 </style>
+
