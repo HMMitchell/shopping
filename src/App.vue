@@ -118,10 +118,12 @@
   </div>
 </template>
 
+
 <script>
-import $ from "jquery"
+import $ from "jquery";
 export default {
   name: "app",
+  //   生命周期加载后执行
   mounted() {
     $("#menu2 li a").wrapInner('<span class="out"></span>');
     $("#menu2 li a").each(function() {
@@ -149,8 +151,7 @@ export default {
   }
 };
 </script>
-
 <style scoped>
-@import "./assets/lib/hoverNav/css/style.css"
+@import "./assets/lib/hoverNav/css/style.css";
 </style>
 
