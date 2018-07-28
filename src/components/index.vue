@@ -82,7 +82,7 @@
                 <div class="wrap-box">
                     <ul class="img-list">
                         <li v-for="(itemSon, index) in item.datas" :key="itemSon.artID">
-                            <a href="#/site/goodsinfo/87" class="">
+                            <router-link :to="'/goodsInfo/'+itemSon.artID">
                                 <div class="img-box">
                                     <img v-lazy="itemSon.img_url">
                                 </div>
@@ -97,7 +97,7 @@
                                         </span>
                                     </p>
                                 </div>
-                            </a>
+                            </router-link>
                         </li>        
                     </ul>
                 </div>
@@ -106,8 +106,7 @@
     </div>
 </template>
 <script>
-import axios from "axios";
-import moment from "moment";
+
 export default {
   //   name: "index",
   data: function() {
@@ -123,18 +122,12 @@ export default {
       goodList: []
     };
   },
-  //   时间
-  filters: {
-    cutTime(value) {
-      // console.log(value);
-      return moment(value).format("YYYY年MM月DDDD日");
-    }
-  },
+
   // 生命周期
   beforeMount() {
     // 导航栏下部分的列表
-    axios
-      .get("http://47.106.148.205:8899/site/goods/gettopdata/goods")
+    this.axios
+      .get("/site/goods/gettopdata/goods")
       .then(response => {
         console.log(response);
         this.catelist = response.data.message.catelist;
@@ -145,8 +138,8 @@ export default {
         // console.log(error);
       });
     // 商品详情列表
-    axios
-      .get("http://47.106.148.205:8899/site/goods/getgoodsgroup")
+    this.axios
+      .get("/site/goods/getgoodsgroup")
       .then(response => {
         // console.log(response);
         this.goodList=response.data.message
