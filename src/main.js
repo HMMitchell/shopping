@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App.vue';
 // 引入路由模块
 import VueRouter from 'vue-router';
+import Vuex from 'vuex';
+
 // 引入index模块
 import index from './components/index.vue';
 
@@ -12,6 +14,9 @@ import 'element-ui/lib/theme-chalk/index.css';
 import VueLazyload from 'vue-lazyload';
 
 import goodsInfo from './components/goodsInfo.vue';
+
+import iView from 'iview';
+import 'iview/dist/styles/iview.css';
 
 // 公共部分--------------------------------
 import axios from "axios";
@@ -37,6 +42,8 @@ Vue.use(VueLazyload, {
   loading: require("./assets/statics/site/images/01.gif")
 });
 
+Vue.use(iView);
+Vue.use(Vuex);
 // 注册路由规则
 const router = new VueRouter({
   routes: [
@@ -60,10 +67,25 @@ const router = new VueRouter({
 import './assets/statics/site/css/style.css'
 
 Vue.config.productionTip = false
+// vuex部分
+// 如果在模块化构建系统中，请确保在开头调用了 Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment (state,num) {
+      state.count+=num
+    }
+  }
+})
 
 new Vue({
   // 渲染 App组件
   render: h => h(App),
   // 挂载到vue
-  router
-}).$mount('#app')
+  router,
+  store
+}).$mount('#app');
+

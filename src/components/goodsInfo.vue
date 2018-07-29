@@ -54,9 +54,7 @@
                                                     </span>
                                                     <div class="el-input el-input--small">
                                                         <!---->
-                                                        <input v-model="buyNum" autocomplete="off" size="small" type="text" rows="2" max="60" min="1" validateevent="true" class="el-input__inner"
-                                                            role="spinbutton" aria-valuemax="60" aria-valuemin="1" aria-valuenow="1"
-                                                            aria-disabled="false">
+                                                        <input v-model="buyNum" autocomplete="off" size="small" type="text" rows="2" max="60" min="1" validateevent="true" class="el-input__inner" role="spinbutton" aria-valuemax="60" aria-valuemin="1" aria-valuenow="1" aria-disabled="false">
                                                         <!---->
                                                         <!---->
                                                         <!---->
@@ -72,8 +70,8 @@
                                     <dl>
                                         <dd>
                                             <div id="buyButton" class="btn-buy">
-                                                <button onclick="cartAdd(this,'/',1,'/shopping.html');" class="buy">立即购买</button>
-                                                <button onclick="cartAdd(this,'/',0,'/cart.html');" class="add">加入购物车</button>
+                                                <button  class="buy">立即购买</button>
+                                                <button @click="cartAdd" class="add">加入购物车</button>
                                             </div>
                                         </dd>
                                     </dl>
@@ -81,16 +79,18 @@
                             </div>
                         </div>
                         <div id="goodsTabs" class="goods-tab bg-wrap">
-                            <div id="tabHead" class="tab-head" style="position: static; top: 517px; width: 925px;">
-                                <ul>
-                                   <li>
-                                                <a @click="isShowDesc = true" href="javascript:;" :class="{selected:isShowDesc}">商品介绍</a>
-                                            </li>
-                                            <li>
-                                                <a @click="isShowDesc = false" href="javascript:;" :class="{selected:!isShowDesc}">商品评论</a>
-                                            </li>
-                                </ul>
-                            </div>
+                            <Affix>
+                                <div id="tabHead" class="tab-head" style="position: static; top: 517px; width: 925px;">
+                                    <ul>
+                                        <li>
+                                            <a @click="isShowDesc = true" href="javascript:;" :class="{selected:isShowDesc}">商品介绍</a>
+                                        </li>
+                                        <li>
+                                            <a @click="isShowDesc = false" href="javascript:;" :class="{selected:!isShowDesc}">商品评论</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </Affix>
                             <div v-html="goodsinfo.content" class="tab-content entry" :style="{display: isShowDesc?'block':'none'}">
                                 内容
                             </div>
@@ -103,53 +103,39 @@
                                         </div>
                                         <div class="conn-box">
                                             <div class="editor">
-                                                <textarea id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！"></textarea>
+                                                <textarea v-model.trim="contentMessage" id="txtContent" name="txtContent" sucmsg=" " datatype="*10-1000" nullmsg="请填写评论内容！"></textarea>
                                                 <span class="Validform_checktip"></span>
                                             </div>
                                             <div class="subcon">
-                                                <input id="btnSubmit" name="submit" type="submit" value="提交评论" class="submit">
+                                                <input id="btnSubmit" @click="submitContent" name="submit" type="submit" value="提交评论" class="submit">
                                                 <span class="Validform_checktip"></span>
                                             </div>
                                         </div>
                                     </div>
                                     <ul id="commentList" class="list-box">
-                                        <p style="margin: 5px 0px 15px 69px; line-height: 42px; text-align: center; border: 1px solid rgb(247, 247, 247);">暂无评论，快来抢沙发吧！</p>
-                                        <li>
+                                        <p v-if="messageList.length==0" style="margin: 5px 0px 15px 69px; line-height: 42px; text-align: center; border: 1px solid rgb(247, 247, 247);">暂无评论，快来抢沙发吧！</p>
+                                        <li v-for="(item, index) in messageList" :key="item.id">
                                             <div class="avatar-box">
                                                 <i class="iconfont icon-user-full"></i>
                                             </div>
                                             <div class="inner-box">
                                                 <div class="info">
-                                                    <span>匿名用户</span>
-                                                    <span>2017/10/23 14:58:59</span>
+                                                    <span>{{item.user_name}}</span>
+                                                    <span>{{item.add_time | cutTime}}</span>
                                                 </div>
-                                                <p>testtesttest</p>
+                                                <p>{{item.content}}</p>
                                             </div>
                                         </li>
-                                        <li>
-                                            <div class="avatar-box">
-                                                <i class="iconfont icon-user-full"></i>
-                                            </div>
-                                            <div class="inner-box">
-                                                <div class="info">
-                                                    <span>匿名用户</span>
-                                                    <span>2017/10/23 14:59:36</span>
-                                                </div>
-                                                <p>很清晰调动单很清晰调动单</p>
-                                            </div>
-                                        </li>
+
                                     </ul>
                                     <div class="page-box" style="margin: 5px 0px 0px 62px;">
-                                        <div id="pagination" class="digg">
-                                            <span class="disabled">« 上一页</span>
-                                            <span class="current">1</span>
-                                            <span class="disabled">下一页 »</span>
-                                        </div>
+                                       <Page :total="totalCount" :page-size="pageSize" placement="top" :page-size-opts="[5,10,15,20]" @on-change="pageChange($event)" @on-page-size-change="pageSizeChange($event)" show-elevator show-sizer />
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
                     <!-- 推荐商品 -->
                     <div class="left-220">
                         <div class="bg-wrap nobg">
@@ -162,7 +148,7 @@
                                                 <img :src="item.img_url">
                                             </router-link>
                                         </div>
-                                        <div class="txt-box">
+                                        <div  class="txt-box">
                                             <router-link :to="`/goodsInfo/`+item.id">{{item.title}}</router-link>
                                             <span>{{item.add_time | cutTime}}</span>
                                         </div>
@@ -175,6 +161,8 @@
                 </div>
             </div>
         </div>
+        <!-- 返回顶部 -->
+        <BackTop></BackTop>
     </div>
 </template>
 <script>
@@ -191,7 +179,15 @@ export default {
       // 购买数量
       buyNum: 1,
       isShowDesc: true,
-      // 放大镜数据图片
+      //   评论相关数据---------
+      pageIndex: 1,
+      pageSize: 5,
+      //   评论数据
+      messageList: [],
+      totalCount: 0,
+      // /输入评论的值
+      contentMessage: "",
+      // 放大镜数据图片-------
       images: {
         normal_size: []
       },
@@ -211,6 +207,7 @@ export default {
     ProductZoomer
   },
   methods: {
+    //   用axios渲染商品详情
     getdoodsInfo() {
       // 强制初始化
       this.imglist = [];
@@ -234,12 +231,72 @@ export default {
         .catch(function(error) {
           console.log(error);
         });
+    },
+    // 用axios渲染评论信息
+    getcomments() {
+      this.axios
+        .get(
+          `site/comment/getbypage/goods/${this.$route.params.id}?pageIndex=${
+            this.pageIndex
+          }&pageSize=${this.pageSize}`
+        )
+        .then(response => {
+          console.log(response);
+          this.messageList = response.data.message;
+          this.totalCount = response.data.totalcount;
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    pageChange(page) {
+      // console.log(page);
+      this.pageIndex = page;
+      this.getcomments();
+    },
+    pageSizeChange(pageSize) {
+      // console.log(pageSize);
+      this.pageSize = pageSize;
+      this.getcomments();
+    },
+    // 点击提交评论
+    submitContent() {
+      if (this.contentMessage == "") {
+        this.$Message.error("对方不想和你说话,并且向你抛了一堆bug");
+        return;
+      }
+    //   发表评论
+    const params = new URLSearchParams();
+    // 需要传入的参数
+    params.append('commenttxt', this.contentMessage);
+    
+    this.axios.post(`site/validate/comment/post/goods/${this.$route.params.id}`, params)
+        .then((response) => {
+            // console.log(response);
+            if(response.data.status==0){
+                this.$Message.success("发表评论成功");
+                this.pageIndex=1;
+                this.getcomments();
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+        // 重新 清空输入的数据
+        this.contentMessage="";        
+    },
+
+    cartAdd() {
+      // console.log(this.$store);
+      this.$store.commit("increment", this.buyNum);
     }
   },
   // 生命周期------------------
   beforeCreate() {},
   created() {
     this.getdoodsInfo();
+    // 评论
+    this.getcomments();
   },
 
   //   监听-------------
@@ -248,30 +305,36 @@ export default {
       // console.log(to);
       // console.log(from);
       this.getdoodsInfo();
+      // 评论
+      this.getcomments();
     }
   }
 };
 </script>
-<style >
+<style>
 @import url("../../node_modules/font-awesome/css/font-awesome.min.css");
 .zoomer-zoomer-box {
   width: 368px;
 }
+
 .pic-box #zoomer-pane-container.pane-container {
   left: 400px !important;
   top: 0 !important;
   width: 400px !important;
   height: 400px !important;
 }
+
 .pic-box .control-box .thumb-list {
   display: flex;
 }
+
 .pic-box .thumb-list .responsive-image {
   height: 78px;
   width: 78px;
   margin: 5px;
   display: block !important;
 }
+
 .control i {
   text-align: center;
 }
