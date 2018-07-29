@@ -22,13 +22,13 @@ import 'iview/dist/styles/iview.css';
 import axios from "axios";
 
 import moment from "moment";
-Vue.prototype.axios=axios;
+Vue.prototype.axios = axios;
 
 // 正常的服务器
 axios.defaults.baseURL = 'http://47.106.148.205:8899';
 
 // 注册全局过滤器
-Vue.filter('cutTime',function(value){
+Vue.filter('cutTime', function (value) {
   return moment(value).format("YYYY年MM月DD日");
 });
 
@@ -69,14 +69,47 @@ import './assets/statics/site/css/style.css'
 Vue.config.productionTip = false
 // vuex部分
 // 如果在模块化构建系统中，请确保在开头调用了 Vue.use(Vuex)
-
+// 判断数据是否存在
+let buyList=JSON.parse(window.localStorage.getItem('buyList'));
+if(buyList){
+  
+}
 const store = new Vuex.Store({
+  // 状态
   state: {
-    count: 0
+    // 购买的数量
+    buyList: {}
+  },
+  // 计算属性的
+  getters: {
+    totalNum(state) {
+      // 用一个值保存总数
+      let num = 0;
+      // 遍历对象
+      for (var key in state.buyList) {
+        num += parseInt(state.buyList[key]);
+      }
+      //  返回总数
+      return num
+    }
   },
   mutations: {
-    increment (state,num) {
-      state.count+=num
+    increment(state, info) {
+      // info  {id:0 num:1} 这种形式 有字符串要转数字
+      if (state.buyList[info.id]) {
+        // 有就添加 
+        // state.buyList[info.id]+=info.num
+        // 以下是转数字
+        let oldNum = parseInt(state.buyList[info.id])
+        oldNum += parseInt(info.num);
+        state.buyList[info.id] = oldNum;
+      } else {
+        // 
+        // state.buyList[info.id]=info.num
+        // 跟踪数据
+        Vue.set(state.buyList, info.id, parseInt(info.num))
+      }
+
     }
   }
 })
@@ -89,3 +122,8 @@ new Vue({
   store
 }).$mount('#app');
 
+// 关闭浏览器或者刷新的方法
+window.onbeforeunload=function () {
+  // 保存数据到localStorage
+  window.localStorage.setItem('buyList',JSON.stringify(store.state.buyList))
+}

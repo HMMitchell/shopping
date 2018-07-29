@@ -163,11 +163,14 @@
         </div>
         <!-- 返回顶部 -->
         <BackTop></BackTop>
+        <img class="moveimg" v-if="imglist.length!=0" style="display:none" :src="imglist[0].original_path" alt="">
     </div>
 </template>
 <script>
 // 导入放大镜组件
 import ProductZoomer from "vue-product-zoomer";
+// 导入jquery
+import $ from "jquery";
 
 export default {
   name: "goodsInfo",
@@ -216,7 +219,7 @@ export default {
       this.axios
         .get(`site/goods/getgoodsinfo/${this.$route.params.id}`)
         .then(response => {
-          // console.log(response);
+          //   console.log(response);
           this.goodsinfo = response.data.message.goodsinfo;
           this.hotgoodslist = response.data.message.hotgoodslist;
           this.imglist = response.data.message.imglist;
@@ -241,7 +244,7 @@ export default {
           }&pageSize=${this.pageSize}`
         )
         .then(response => {
-          console.log(response);
+          //   console.log(response);
           this.messageList = response.data.message;
           this.totalCount = response.data.totalcount;
         })
@@ -265,30 +268,46 @@ export default {
         this.$Message.error("对方不想和你说话,并且向你抛了一堆bug");
         return;
       }
-    //   发表评论
-    const params = new URLSearchParams();
-    // 需要传入的参数
-    params.append('commenttxt', this.contentMessage);
-    
-    this.axios.post(`site/validate/comment/post/goods/${this.$route.params.id}`, params)
-        .then((response) => {
-            // console.log(response);
-            if(response.data.status==0){
-                this.$Message.success("发表评论成功");
-                this.pageIndex=1;
-                this.getcomments();
-            }
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-        // 重新 清空输入的数据
-        this.contentMessage="";        
-    },
+      //   发表评论
+      const params = new URLSearchParams();
+      // 需要传入的参数
+      params.append("commenttxt", this.contentMessage);
 
+      this.axios
+        .post(
+          `site/validate/comment/post/goods/${this.$route.params.id}`,
+          params
+        )
+        .then(response => {
+          // console.log(response);
+          if (response.data.status == 0) {
+            this.$Message.success("发表评论成功");
+            this.pageIndex = 1;
+            this.getcomments();
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+      // 重新 清空输入的数据
+      this.contentMessage = "";
+    },
+    // 添加购物车
     cartAdd() {
       // console.log(this.$store);
-      this.$store.commit("increment", this.buyNum);
+      // 获取购物车按钮的位置
+      let caroffset = $("#buyButton .add").offset();
+      // console.log(caroffset);
+      // 获取购物车的位置(上面)
+      let car = $(".icon-cart").offset();
+      // console.log(car);
+      $(".moveimg").show().addClass("img").css(caroffset).animate(car, 1000, () => {
+          $(".moveimg").hide().removeClass("img");
+        });
+      this.$store.commit("increment", {
+          id:this.$route.params.id,//id
+          num:this.buyNum//购买数量
+      });
     }
   },
   // 生命周期------------------
@@ -337,5 +356,16 @@ export default {
 
 .control i {
   text-align: center;
+}
+.moveimg {
+  width: 40px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.moveimg.img {
+  transform: scale(0.5, 0.5) rotateZ(3600deg);
+  opacity: 0.4;
+  transition: transform 1s, opacity 1s;
 }
 </style>
