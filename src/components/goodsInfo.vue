@@ -13,8 +13,10 @@
                 <div class="wrap-box">
                     <div class="left-925">
                         <div class="goods-box clearfix">
-
-                            <div class="pic-box"></div>
+                            <!-- 放大镜 -->
+                            <div class="pic-box" v-if="this.imglist.length!=0">
+                                <ProductZoomer :baseImages="images" :base-zoomer-options="zoomerOptions"></ProductZoomer>
+                            </div>
 
                             <div class="goods-spec">
                                 <h1>{{goodsinfo.title}}</h1>
@@ -81,18 +83,19 @@
                         <div id="goodsTabs" class="goods-tab bg-wrap">
                             <div id="tabHead" class="tab-head" style="position: static; top: 517px; width: 925px;">
                                 <ul>
-                                    <li>
-                                        <a href="javascript:;" class="selected">商品介绍</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:;">商品评论</a>
-                                    </li>
+                                   <li>
+                                                <a @click="isShowDesc = true" href="javascript:;" :class="{selected:isShowDesc}">商品介绍</a>
+                                            </li>
+                                            <li>
+                                                <a @click="isShowDesc = false" href="javascript:;" :class="{selected:!isShowDesc}">商品评论</a>
+                                            </li>
                                 </ul>
                             </div>
-                            <div class="tab-content entry" style="display: block;">
+                            <div v-html="goodsinfo.content" class="tab-content entry" :style="{display: isShowDesc?'block':'none'}">
                                 内容
                             </div>
-                            <div class="tab-content" style="display: block;">
+                            <!-- 评论 -->
+                            <div class="tab-content" :style="{display: !isShowDesc?'block':'none'}">
                                 <div class="comment-box">
                                     <div id="commentForm" name="commentForm" class="form-box">
                                         <div class="avatar-box">
@@ -164,7 +167,7 @@
                                             <span>{{item.add_time | cutTime}}</span>
                                         </div>
                                     </li>
-                            
+
                                 </ul>
                             </div>
                         </div>
@@ -175,6 +178,9 @@
     </div>
 </template>
 <script>
+// 导入放大镜组件
+import ProductZoomer from "vue-product-zoomer";
+
 export default {
   name: "goodsInfo",
   data: function() {
@@ -182,11 +188,34 @@ export default {
       goodsinfo: {},
       hotgoodslist: [],
       imglist: [],
-      buyNum: 1
+      // 购买数量
+      buyNum: 1,
+      isShowDesc: true,
+      // 放大镜数据图片
+      images: {
+        normal_size: []
+      },
+      zoomerOptions: {
+        zoomFactor: 4,
+        pane: "pane",
+        hoverDelay: 400,
+        namespace: "zoomer",
+        move_by_click: true,
+        scroll_items: 1,
+        choosed_thumb_border_color: "#dd2c00"
+      }
     };
+  },
+  //   注册组件
+  components: {
+    ProductZoomer
   },
   methods: {
     getdoodsInfo() {
+      // 强制初始化
+      this.imglist = [];
+      // 清空预览图片的数组
+      this.images.normal_size = [];
       this.axios
         .get(`site/goods/getgoodsinfo/${this.$route.params.id}`)
         .then(response => {
@@ -194,6 +223,13 @@ export default {
           this.goodsinfo = response.data.message.goodsinfo;
           this.hotgoodslist = response.data.message.hotgoodslist;
           this.imglist = response.data.message.imglist;
+          // 赋值到images中
+          this.imglist.forEach((v, i) => {
+            this.images.normal_size.push({
+              id: v.id,
+              url: v.original_path
+            });
+          });
         })
         .catch(function(error) {
           console.log(error);
@@ -216,5 +252,27 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style >
+@import url("../../node_modules/font-awesome/css/font-awesome.min.css");
+.zoomer-zoomer-box {
+  width: 368px;
+}
+.pic-box #zoomer-pane-container.pane-container {
+  left: 400px !important;
+  top: 0 !important;
+  width: 400px !important;
+  height: 400px !important;
+}
+.pic-box .control-box .thumb-list {
+  display: flex;
+}
+.pic-box .thumb-list .responsive-image {
+  height: 78px;
+  width: 78px;
+  margin: 5px;
+  display: block !important;
+}
+.control i {
+  text-align: center;
+}
 </style>
