@@ -12,8 +12,10 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 // 引入懒加载
 import VueLazyload from 'vue-lazyload';
-
+// 引入goodsInfo模块
 import goodsInfo from './components/goodsInfo.vue';
+// 引入buycar模块
+import buycar from "./components/buycar.vue"
 
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
@@ -59,6 +61,10 @@ const router = new VueRouter({
     {
       path: '/goodsInfo/:id',
       component: goodsInfo,
+    },
+    {
+      path: '/buycar',
+      component: buycar,
     }
   ]
 })
@@ -70,15 +76,14 @@ Vue.config.productionTip = false
 // vuex部分
 // 如果在模块化构建系统中，请确保在开头调用了 Vue.use(Vuex)
 // 判断数据是否存在
-let buyList=JSON.parse(window.localStorage.getItem('buyList'));
-if(buyList){
-  
-}
+let buyList = JSON.parse(window.localStorage.getItem('buyList')) || {};
+
 const store = new Vuex.Store({
   // 状态
   state: {
     // 购买的数量
-    buyList: {}
+    // buyList: {}
+    buyList
   },
   // 计算属性的
   getters: {
@@ -93,7 +98,9 @@ const store = new Vuex.Store({
       return num
     }
   },
+  // 库
   mutations: {
+    // 有就累加 没有就 直接赋值
     increment(state, info) {
       // info  {id:0 num:1} 这种形式 有字符串要转数字
       if (state.buyList[info.id]) {
@@ -109,9 +116,19 @@ const store = new Vuex.Store({
         // 跟踪数据
         Vue.set(state.buyList, info.id, parseInt(info.num))
       }
-
+    },
+    // 直接更新 在购物车页加减数量后更新数据
+    updateCount(state, info) {
+      state.buyList[info.id] = info.num
+    },
+    // 删除
+    deleteCount(state, id) {
+      // 这样删除购物车的数字不会改变,所以要告诉vue已经删除了这个属性
+      // delete state.buyList[id]
+      Vue.delete(state.buyList, id);
     }
-  }
+  },
+
 })
 
 new Vue({
@@ -123,7 +140,7 @@ new Vue({
 }).$mount('#app');
 
 // 关闭浏览器或者刷新的方法
-window.onbeforeunload=function () {
+window.onbeforeunload = function () {
   // 保存数据到localStorage
-  window.localStorage.setItem('buyList',JSON.stringify(store.state.buyList))
+  window.localStorage.setItem('buyList', JSON.stringify(store.state.buyList))
 }
