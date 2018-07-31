@@ -15,7 +15,11 @@ import VueLazyload from 'vue-lazyload';
 // 引入goodsInfo模块
 import goodsInfo from './components/goodsInfo.vue';
 // 引入buycar模块
-import buycar from "./components/buycar.vue"
+import buycar from "./components/buycar.vue";
+// 引入payorder模块
+import payorder from "./components/payorder.vue";
+// 引入登录模块
+import login from "./components/login.vue"
 
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
@@ -26,8 +30,11 @@ import axios from "axios";
 import moment from "moment";
 Vue.prototype.axios = axios;
 
+
 // 正常的服务器
 axios.defaults.baseURL = 'http://47.106.148.205:8899';
+// 设置带上cookie
+axios.defaults.withCredentials = true
 
 // 注册全局过滤器
 Vue.filter('cutTime', function (value) {
@@ -65,7 +72,16 @@ const router = new VueRouter({
     {
       path: '/buycar',
       component: buycar,
-    }
+    },
+    {
+      path: '/payorder',
+      component: payorder,
+    },
+    {
+      path: '/login',
+      component: login,
+    },
+
   ]
 })
 
@@ -78,12 +94,16 @@ Vue.config.productionTip = false
 // 判断数据是否存在
 let buyList = JSON.parse(window.localStorage.getItem('buyList')) || {};
 
+
 const store = new Vuex.Store({
   // 状态
   state: {
     // 购买的数量
     // buyList: {}
-    buyList
+    buyList,
+    // 登录
+    isLogin:false,
+    fromPath:'',
   },
   // 计算属性的
   getters: {
@@ -126,8 +146,44 @@ const store = new Vuex.Store({
       // 这样删除购物车的数字不会改变,所以要告诉vue已经删除了这个属性
       // delete state.buyList[id]
       Vue.delete(state.buyList, id);
+    },
+    // 登录逻辑----------
+    // 修改登录状态
+    changLogin(state,isLogin) {
+      sessionStorage.setItem("isLogin",state.isLogin);
+      state.isLogin = isLogin
+    },
+    // 修改回来时的路由
+    rememberFromPath(state,path){
+      state.fromPath = path;
     }
   },
+
+});
+
+// 注册路由守卫(每次路由跳转时 增加的过滤规则)
+router.beforeEach((to, from, next) => {
+  // console.log(to);
+  // console.log(from);
+  // console.log(next);
+  store.commit('rememberFromPath',from.path)
+  if (to.path == '/payorder') {
+    axios.get('/site/account/islogin')
+      .then((response) => {
+         console.log(response)
+        // 没登录
+        if (response.data.code == 'nologin') {
+          next('/login')
+        } else {
+          next();
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+  }else{
+    next();
+  }
 
 })
 
@@ -142,5 +198,5 @@ new Vue({
 // 关闭浏览器或者刷新的方法
 window.onbeforeunload = function () {
   // 保存数据到localStorage
-  window.localStorage.setItem('buyList', JSON.stringify(store.state.buyList))
+  window.localStorage.setItem('buyList', JSON.stringify(store.state.buyList));
 }

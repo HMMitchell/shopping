@@ -55,7 +55,7 @@
                                     <th width="54" align="center">操作</th>
                                 </tr>
                                 <!-- 购物车为空的时候 -->
-                                <tr v-if="buyMessage.length==0">
+                                <tr v-if="buyMessage&&buyMessage.length==0">
                                     <td colspan="10">
                                         <div class="msg-tips">
                                             <div class="icon warning">
@@ -107,7 +107,9 @@
                     <div class="cart-foot clearfix">
                         <div class="right-box">
                             <button class="button" onclick="javascript:location.href='/index.html';">继续购物</button>
-                            <button class="submit" onclick="formSubmit(this, '/', '/shopping.html');">立即结算</button>
+                            <router-link to="/payorder">
+                                <button class="submit">立即结算</button>
+                            </router-link>
                         </div>
                     </div>
                     <!--购物车底部-->
@@ -130,7 +132,7 @@
                     <Button type="error" size="large" long :loading="modal_loading" @click="del">删除</Button>
                     </Col>
                     <Col span="12">
-                    <Button type="success" size="large" long :loading="modal_loading" @click="showModel=false">取消</Button>
+                    <Button type="success" size="large" long  @click="showModel=false">取消</Button>
                     </Col>
                 </Row>
 
@@ -139,100 +141,120 @@
     </div>
 </template>
 <script>
-    export default {
-        name: "buycar",
-        data: function () {
-            return {
-                buyMessage: [],
-                // 删除按钮的值
-                showModel: false,
-                modal_loading:false,
-                // 索引值
-                isindex:0,
-            };
-        },
-        //   获取数据
-        created() {
-            let buyList = this.$store.state.buyList;
-            console.log(buyList);
-            // 保存id
-            let ids = "";
-            for (const key in buyList) {
-                ids += key;
-                ids += ",";
-            }
-            // 多了一个逗号
-            // console.log(ids);
-            ids = ids.slice(0, -1);
-            this.axios
-                .get(`site/comment/getshopcargoods/${ids}`)
-                .then(response => {
-                    //  console.log(response)
-                    // this.buyMessage = response.data.message;
-                    // 自己把购买的数量匹配到 返回的数据中
-                    response.data.message.forEach((v, i) => {
-                        // console.log(v);
-                        v.buycount = buyList[v.id];
-                        // console.log(buyList[v.id]);
-                        //   是否选中
-                        v.isSelected = true;
-                    });
-                    // vue 开始跟踪 {id,价格,图片,buycount}
-                    this.buyMessage = response.data.message;
-                    // console.log(this.buyMessage);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-        },
-        //   计算属性
-        computed: {
-            //   选中的总个数
-            selectCount() {
-                let totalCount = 0;
-                this.buyMessage.forEach((v, i) => {
-                    if (v.isSelected == true) {
-                        totalCount += v.buycount;
-                    }
-                });
-                return totalCount;
-            },
-            // 总金额
-            totalPrice() {
-                let totalPrice = 0;
-                this.buyMessage.forEach((v, i) => {
-                    if (v.isSelected == true) {
-                        totalPrice += v.buycount * v.sell_price;
-                    }
-                });
-                return totalPrice;
-            }
-        },
-        //   方法
-        methods: {
-            //   改变数量
-            change(value, index) {
-                // console.log(value,index);
-                this.$store.commit("updateCount", {
-                    id: this.buyMessage[index].id,
-                    num: value
-                });
-            },
-            // 删除 购物车 点击删除弹出提示信息 提示信息点击删除才是删除 提示信息用iview
-            del() {
-                this.modal_loading = true;
-                setTimeout(() => {
-                    this.modal_loading = false;
-                    this.showModel = false;
-                    // 根据索引删除对应的id
-                    this.$store.commit("deleteCount",this.buyMessage[this.isindex].id);
-                    // 获取当前这条数据的 index 删除当前这个组件中的 这一条数据
-                    this.buyMessage.splice(this.isindex,1);
-                    this.$Message.success("删除成功");
-                }, 1000);
-            }
-        }
+export default {
+  name: "buycar",
+  data: function() {
+    return {
+    //   buyMessage: [],
+      // 加载中会看到没有物品的数据
+      buyMessage: undefined,
+      // 删除按钮的值
+      showModel: false,
+      modal_loading: false,
+      // 索引值
+      isindex: 0
     };
+  },
+  //   获取数据
+  created() {
+    // 一进来显示加载框
+    this.$Spin.show();
+    let buyList = this.$store.state.buyList;
+    // console.log(buyList);
+    // 保存id
+    let ids = "";
+    for (const key in buyList) {
+      ids += key;
+      ids += ",";
+    }
+
+    ids = ids.slice(0, -1);
+    if ((ids == "")) {
+      setTimeout(() => {
+        this.buyMessage = [];
+        this.$Spin.hide();
+      }, 500);
+      return
+    }
+    // 多了一个逗号
+    console.log(ids);
+    this.axios
+      .get(`site/comment/getshopcargoods/${ids}`)
+      .then(response => {
+        //  console.log(response)
+        // this.buyMessage = response.data.message;
+        // 自己把购买的数量匹配到 返回的数据中
+        response.data.message.forEach((v, i) => {
+          // console.log(v);
+          v.buycount = buyList[v.id];
+          // console.log(buyList[v.id]);
+          //   是否选中
+          v.isSelected = true;
+        });
+        // vue 开始跟踪 {id,价格,图片,buycount}
+        this.buyMessage = response.data.message;
+        // console.log(this.buyMessage);
+        // 渲染数据后隐藏加载框
+        setTimeout(() => {
+          this.$Spin.hide();
+        }, 500);
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+  },
+  //   计算属性
+  computed: {
+    //   选中的总个数
+    selectCount() {
+      let totalCount = 0;
+      // 非空判断
+      if (this.buyMessage == undefined) return totalCount;
+      this.buyMessage.forEach((v, i) => {
+        if (v.isSelected == true) {
+          totalCount += v.buycount;
+        }
+      });
+      return totalCount;
+    },
+    // 总金额
+    totalPrice() {
+      let totalPrice = 0;
+      // 非空判断
+      if (this.buyMessage == undefined) return totalPrice;
+      this.buyMessage.forEach((v, i) => {
+        if (v.isSelected == true) {
+          totalPrice += v.buycount * v.sell_price;
+        }
+      });
+      return totalPrice;
+    }
+  },
+  //   方法
+  methods: {
+    //   改变数量
+    change(value, index) {
+      // console.log(value,index);
+      this.$store.commit("updateCount", {
+        id: this.buyMessage[index].id,
+        num: value
+      });
+    },
+    // 删除 购物车 点击删除弹出提示信息 提示信息点击删除才是删除 提示信息用iview
+    del() {
+      this.modal_loading = true;
+      setTimeout(() => {
+        this.modal_loading = false;
+        // 根据索引删除对应的id
+        this.$store.commit("deleteCount", this.buyMessage[this.isindex].id);
+        // 获取当前这条数据的 index 删除当前这个组件中的 这一条数据
+        this.buyMessage.splice(this.isindex, 1);
+        this.showModel = false;
+        this.$Message.success("删除成功");
+      }, 1000);
+    }
+  }
+};
 </script>
 <style scoped>
 </style>

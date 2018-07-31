@@ -11,16 +11,16 @@
                     <a target="_blank" href="#"></a>
                 </div>
                 <div id="menu" class="right-box">
-                    <span style="display: none;">
-                        <a href="" class="">登录</a>
+                    <span v-if="$store.state.isLogin==false">
+                        <router-link to="/login">登录</router-link>
                         <strong>|</strong>
                         <a href="" class="">注册</a>
                         <strong>|</strong>
                     </span>
-                    <span>
-                        <a href="" class="">会员中心</a>
+                    <span v-if="$store.state.isLogin==true">
+                        <router-link to="/index">会员中心</router-link>
                         <strong>|</strong>
-                        <a>退出</a>
+                        <a v-on:click="logout">退出</a>
                         <strong>|</strong>
                     </span>
                     <router-link to="/buycar">
@@ -148,6 +148,28 @@ export default {
           .animate({ top: "-48px" }, 300); // move up - hide
       }
     );
+  },
+  methods: {
+    //   登出
+    logout() {
+      this.axios
+        .get("/site/account/logout")
+        .then(response => {
+          //  console.log(response)
+          if (response.data.status == 0) {
+            // 登出成功
+            this.$Message.success("欢迎再来");
+            this.$store.commit("changLogin", false);
+            // 跳转
+            setTimeout(() => {
+              this.$router.push('/index');
+            }, 500);
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    }
   }
 };
 </script>
