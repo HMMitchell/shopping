@@ -19,7 +19,9 @@ import buycar from "./components/buycar.vue";
 // 引入payorder模块
 import payorder from "./components/payorder.vue";
 // 引入登录模块
-import login from "./components/login.vue"
+import login from "./components/login.vue";
+// 引入付款页模块
+import orderInfo from "./components/orderInfo.vue"
 
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
@@ -74,12 +76,16 @@ const router = new VueRouter({
       component: buycar,
     },
     {
-      path: '/payorder',
+      path: '/payorder/:ids',
       component: payorder,
     },
     {
       path: '/login',
       component: login,
+    },
+    {
+      path: '/orderInfo/:orderid',
+      component: orderInfo,
     },
 
   ]
@@ -150,7 +156,6 @@ const store = new Vuex.Store({
     // 登录逻辑----------
     // 修改登录状态
     changLogin(state,isLogin) {
-      sessionStorage.setItem("isLogin",state.isLogin);
       state.isLogin = isLogin
     },
     // 修改回来时的路由
@@ -170,7 +175,7 @@ router.beforeEach((to, from, next) => {
   if (to.path == '/payorder') {
     axios.get('/site/account/islogin')
       .then((response) => {
-         console.log(response)
+        //  console.log(response)
         // 没登录
         if (response.data.code == 'nologin') {
           next('/login')
@@ -192,7 +197,20 @@ new Vue({
   render: h => h(App),
   // 挂载到vue
   router,
-  store
+  store,
+  // 用生命周期函数判断登录状态isLogin
+  beforeCreate() {
+    axios.get('site/account/islogin')
+    .then((response) => {
+        //  console.log(response)
+        if(response.data.code=='logined'){
+          store.state.isLogin=true;
+        }
+    })
+    .catch(function (error) {
+    console.log(error);
+    })
+  },
 }).$mount('#app');
 
 // 关闭浏览器或者刷新的方法

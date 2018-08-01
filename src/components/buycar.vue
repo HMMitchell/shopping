@@ -107,9 +107,9 @@
                     <div class="cart-foot clearfix">
                         <div class="right-box">
                             <button class="button" onclick="javascript:location.href='/index.html';">继续购物</button>
-                            <router-link to="/payorder">
-                                <button class="submit">立即结算</button>
-                            </router-link>
+                            
+                                <button v-on:click="balance" class="submit">立即结算</button>
+                            
                         </div>
                     </div>
                     <!--购物车底部-->
@@ -177,7 +177,7 @@ export default {
       return
     }
     // 多了一个逗号
-    console.log(ids);
+    // console.log(ids);
     this.axios
       .get(`site/comment/getshopcargoods/${ids}`)
       .then(response => {
@@ -252,7 +252,25 @@ export default {
         this.showModel = false;
         this.$Message.success("删除成功");
       }, 1000);
-    }
+    },
+    // 根据是否选中然后带id过去
+    balance(){
+        // console.log(this.buyMessage);
+        let ids='';
+        this.buyMessage.forEach((v,i)=>{
+            if(v.isSelected){
+                ids+=v.id;
+                ids+=','
+            };
+        });
+        if(ids==''){
+            this.$Message.error("购物车没东西哦");
+            return;
+        }
+        ids=ids.slice(0,-1);
+        //  console.log(ids);
+        this.$router.push('/payorder/'+ids);
+    }   
   }
 };
 </script>

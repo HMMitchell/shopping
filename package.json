@@ -13,6 +13,7 @@
     "iview": "^3.0.0",
     "jquery": "^3.3.1",
     "moment": "^2.22.2",
+    "v-distpicker": "^1.0.17",
     "vue": "^2.5.16",
     "vue-lazyload": "^1.2.6",
     "vue-product-zoomer": "^2.0.10",
@@ -23,6 +24,8 @@
     "@vue/cli-plugin-babel": "^3.0.0-rc.5",
     "@vue/cli-plugin-eslint": "^3.0.0-rc.5",
     "@vue/cli-service": "^3.0.0-rc.5",
+    "node-sass": "^4.9.2",
+    "sass-loader": "^7.0.3",
     "vue-template-compiler": "^2.5.16"
   },
   "eslintConfig": {

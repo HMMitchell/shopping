@@ -57,7 +57,7 @@
                                     <img :src="item.img_url">
                                 </div>
                                 <div class="txt-box">
-                                    <a href="/goods/show-98.html">{{item.title}}</a>
+                                    <router-link :to="'/goodsInfo/'+item.id">{{item.title}}</router-link>
                                     <span>{{item.add_time | cutTime}}</span>
                                 </div>
                             </li>
@@ -106,7 +106,6 @@
     </div>
 </template>
 <script>
-
 export default {
   //   name: "index",
   data: function() {
@@ -129,7 +128,7 @@ export default {
     this.axios
       .get("/site/goods/gettopdata/goods")
       .then(response => {
-        console.log(response);
+        // console.log(response);
         this.catelist = response.data.message.catelist;
         this.sliderlist = response.data.message.sliderlist;
         this.toplist = response.data.message.toplist;
@@ -142,7 +141,7 @@ export default {
       .get("/site/goods/getgoodsgroup")
       .then(response => {
         // console.log(response);
-        this.goodList=response.data.message
+        this.goodList = response.data.message;
       })
       .catch(function(error) {
         console.log(error);
@@ -150,12 +149,16 @@ export default {
   }
 };
 </script>
-<style scoped>
-.el-carousel img {
-  display: block;
-  width: 100%;
-  height: 100%;
+<style lang="scss" scoped>
+.el-carousel {
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 }
 </style>
+
+
 
 

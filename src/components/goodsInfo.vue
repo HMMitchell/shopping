@@ -46,11 +46,11 @@
                                         <dd>
                                             <div class="stock-box">
                                                 <div class="el-input-number el-input-number--small">
-                                                    <span role="button" class="el-input-number__decrease" :class="{'is-disabled':buyNum==1}">
-                                                        <i v-on:click="buyNum==1?1:buyNum--" class="el-icon-minus"></i>
+                                                    <span role="button" v-on:click="buyNum==1?1:buyNum--" class="el-input-number__decrease" :class="{'is-disabled':buyNum==1}">
+                                                        <i class="el-icon-minus"></i>
                                                     </span>
-                                                    <span role="button" class="el-input-number__increase" :class="{'is-disabled':buyNum==goodsinfo.stock_quantity}">
-                                                        <i v-on:click="buyNum<goodsinfo.stock_quantity?buyNum++:goodsinfo.stock_quantity" class="el-icon-plus"></i>
+                                                    <span role="button" v-on:click="buyNum<goodsinfo.stock_quantity?buyNum++:goodsinfo.stock_quantity" class="el-input-number__increase" :class="{'is-disabled':buyNum==goodsinfo.stock_quantity}">
+                                                        <i class="el-icon-plus"></i>
                                                     </span>
                                                     <div class="el-input el-input--small">
                                                         <!---->
