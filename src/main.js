@@ -21,7 +21,8 @@ import payorder from "./components/payorder.vue";
 // 引入登录模块
 import login from "./components/login.vue";
 // 引入付款页模块
-import orderInfo from "./components/orderInfo.vue"
+import orderInfo from "./components/orderInfo.vue";
+import paySuccess from './components/paySuccess.vue';
 
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
@@ -78,6 +79,7 @@ const router = new VueRouter({
     {
       path: '/payorder/:ids',
       component: payorder,
+      meta: { checkLogin: true }
     },
     {
       path: '/login',
@@ -86,8 +88,13 @@ const router = new VueRouter({
     {
       path: '/orderInfo/:orderid',
       component: orderInfo,
+      meta: { checkLogin: true }
     },
-
+    {
+      path: '/paySuccess',
+      component: paySuccess,
+      meta: { checkLogin: true }
+    },
   ]
 })
 
@@ -172,10 +179,11 @@ router.beforeEach((to, from, next) => {
   // console.log(from);
   // console.log(next);
   store.commit('rememberFromPath',from.path)
-  if (to.path == '/payorder') {
+  // if (to.path.indexOf('/payorder')!=-1) {
+    if(to.meta.checkLogin){
     axios.get('/site/account/islogin')
       .then((response) => {
-        //  console.log(response)
+         console.log(response)
         // 没登录
         if (response.data.code == 'nologin') {
           next('/login')
