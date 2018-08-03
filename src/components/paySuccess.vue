@@ -24,7 +24,7 @@
                                             <div class="info">
                                                 <strong>订单已支付成功！</strong>
                                                 <p>您可以点击这里进入
-                                                    <a href="/user/center/index.html">会员中心</a>查看订单状态！</p>
+                                                    <router-link to="/memberCenter">会员中心</router-link>查看订单状态！</p>
                                                 <p>如有其它问题，请立即与我们客服人员联系。</p>
                                             </div>
                                         </div>

@@ -22,7 +22,14 @@ import payorder from "./components/payorder.vue";
 import login from "./components/login.vue";
 // 引入付款页模块
 import orderInfo from "./components/orderInfo.vue";
+// 付款成功的页面的模块
 import paySuccess from './components/paySuccess.vue';
+// 会员中心模块
+import memberCenter from './components/memberCenter.vue';
+// 交易订单模块
+import orderlist from './components/orderlist.vue';
+// 查看订单模块
+import lookOrder from './components/lookOder.vue'
 
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
@@ -40,8 +47,12 @@ axios.defaults.baseURL = 'http://47.106.148.205:8899';
 axios.defaults.withCredentials = true
 
 // 注册全局过滤器
-Vue.filter('cutTime', function (value) {
-  return moment(value).format("YYYY年MM月DD日");
+Vue.filter('cutTime', function (value,myTime) {
+  if(myTime){
+    return moment(value).format(myTime);
+  }else{
+    return moment(value).format("YYYY年MM月DD日");
+  }
 });
 
 // ---------------------------------------------
@@ -93,6 +104,21 @@ const router = new VueRouter({
     {
       path: '/paySuccess',
       component: paySuccess,
+      meta: { checkLogin: true }
+    },
+    {
+      path: '/memberCenter',
+      component: memberCenter,
+      meta: { checkLogin: true }
+    },
+    {
+      path: '/orderlist',
+      component: orderlist,
+      meta: { checkLogin: true }
+    },
+    {
+      path: '/lookOrder/:orderid',
+      component: lookOrder,
       meta: { checkLogin: true }
     },
   ]
@@ -183,7 +209,7 @@ router.beforeEach((to, from, next) => {
     if(to.meta.checkLogin){
     axios.get('/site/account/islogin')
       .then((response) => {
-         console.log(response)
+        //  console.log(response)
         // 没登录
         if (response.data.code == 'nologin') {
           next('/login')

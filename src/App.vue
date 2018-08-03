@@ -18,7 +18,7 @@
                         <strong>|</strong>
                     </span>
                     <span v-if="$store.state.isLogin==true">
-                        <router-link to="/index">会员中心</router-link>
+                        <router-link to="/memberCenter">会员中心</router-link>
                         <strong>|</strong>
                         <a v-on:click="logout">退出</a>
                         <strong>|</strong>

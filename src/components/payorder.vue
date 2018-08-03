@@ -388,5 +388,8 @@ export default {
   components: { VDistpicker }
 };
 </script>
-<style scoped>
+<style>
+/* .distpicker-address-wrapper select{
+    height: 48px;
+} */
 </style>
