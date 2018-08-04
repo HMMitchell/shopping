@@ -49,7 +49,7 @@ export default {
           password: this.password
         })
         .then(response => {
-            console.log(response);
+            // console.log(response);
           if (response.data.status == 1) {
             // 登录失败
             this.$Message.error(response.data.message);
